@@ -1,0 +1,7 @@
+{
+  "resolution": "1080x1920",
+  "fps": 30,
+  "background": "../assets/background.mp4",
+  "audio": "../assets/voice.wav",
+  "output": "output/final.mp4"
+}
