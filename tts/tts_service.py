@@ -15,7 +15,7 @@ def clean_audio(path):
     # Save the cleaned audio
     normalized_audio.export(path, format="wav")
 
-def generate_speech(text, output_path="../assets/voice.wav"):
+def generate_speech(text, output_path):
     # load default TTS model
     voiceModels= ["tts_models/en/ljspeech/tacotron2-DDC",
                   "tts_models/en/vctk/vits",
@@ -26,9 +26,6 @@ def generate_speech(text, output_path="../assets/voice.wav"):
 
     tts = TTS(voiceModels[1], gpu=True)  # You can choose any model from the list
 
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
     # generate speech
     tts.tts_to_file(text=text, file_path=str(output_path),speaker=speaker)
     clean_audio(output_path)
@@ -36,6 +33,8 @@ def generate_speech(text, output_path="../assets/voice.wav"):
     print(f"Speech generated successfully: {output_path}")
 
 
-if __name__ == "__main__":
-    sample_test="Hello, this is a test of the text to speech generation."
-    generate_speech(sample_test)
+def synthesize(text):
+    output_path = "../assets/voice.wav"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    generate_speech(text, output_path)   
+    return output_path
