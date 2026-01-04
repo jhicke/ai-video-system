@@ -33,8 +33,8 @@ def generate_speech(text, output_path):
     print(f"Speech generated successfully: {output_path}")
 
 
-def synthesize(text):
-    output_path = "../assets/voice.wav"
+def synthesize(text, outputFileName="voice.wav"):
+    output_path = f"../assets/{outputFileName}"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     generate_speech(text, output_path)   
     return output_path
