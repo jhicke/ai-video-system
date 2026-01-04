@@ -34,7 +34,9 @@ def generate_speech(text, output_path):
 
 
 def synthesize(text, outputFileName="voice.wav"):
-    output_path = f"../assets/{outputFileName}"
+        # returns path relative to 
+    project_root = Path(__file__).parent.parent
+    output_path = project_root / "assets" / outputFileName
     output_path.parent.mkdir(parents=True, exist_ok=True)
     generate_speech(text, output_path)   
     return output_path
