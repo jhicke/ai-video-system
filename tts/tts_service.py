@@ -28,7 +28,8 @@ def generate_speech(text, output_path):
 
     speaker = "p340"  # Example speaker for vctk model
 
-    tts = TTS(voiceModels[1], gpu=True)  # You can choose any model from the list
+    tts = TTS(voiceModels[1])  # You can choose any model from the list
+    tts.to("cuda")  # use GPU if available
 
     # generate speech
     tts.tts_to_file(text=text, file_path=str(output_path), speaker=speaker)

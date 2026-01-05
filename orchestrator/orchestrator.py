@@ -1,0 +1,65 @@
+from pathlib import Path
+from tts.tts_service import synthesize
+from renderer.renderer import render_video
+
+
+def run_pipeline(
+    script: str,
+    project_root: Path,
+    *,
+    output_dir: Path | None = None,
+    video_filename: str = "final_video.mp4",
+) -> Path:
+    """
+    Orchestrates the full pipeline:
+    1. Generate TTS audio from script
+    2. Render video from audio
+    3. Return final video path
+    """
+
+    # input validation
+    if not isinstance(project_root, Path):
+        raise TypeError("project_root must be a Path object")
+    if not isinstance(script, str):
+        raise TypeError("script must be a string")
+    if output_dir is not None and not isinstance(output_dir, Path):
+        raise TypeError("output_dir must be a Path object or None")
+    if not isinstance(video_filename, str):
+        raise TypeError("video_filename must be a string")
+    if not video_filename.lower().endswith(".mp4"):
+        raise ValueError("video_filename must end with .mp4")
+
+    # Step 1: Generate TTS audio
+    tts_output_path = synthesize(
+        script, project_root / "assets" / "voice" / "pipeline_voice.wav"
+    )
+    # error handling
+    if not tts_output_path.exists():
+        raise RuntimeError(f"TTS output file not found: {tts_output_path}")
+    if not isinstance(tts_output_path, Path):
+        raise TypeError("TTS microservice returned a non-Path output")
+
+    # Step 2: Render video
+    background_path = (
+        project_root / "assets" / "video" / "background.mp4"
+    )  # will be changed later for video creation
+    if not background_path.exists():
+        raise FileNotFoundError(f"Background video not found: {background_path}")
+
+    if output_dir is None:
+        output_dir = project_root / "assets" / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / video_filename
+
+    rendered_video_path = render_video(
+        audio_path=tts_output_path,
+        background_path=background_path,
+        output_path=output_path,
+    )
+    # error handling
+    if not rendered_video_path.exists():
+        raise RuntimeError(f"Rendered video file not found: {rendered_video_path}")
+    if not isinstance(rendered_video_path, Path):
+        raise TypeError("Renderer microservice returned a non-Path output")
+
+    return rendered_video_path
