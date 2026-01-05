@@ -14,7 +14,18 @@ def render_video(
     output_path: Path,  # output video file path
     resolution: str = "1080x1920",
     fps: int = 30,
-):
+) -> Path:
+    # input validation
+    if not audio_path.exists():
+        raise FileNotFoundError(f"Audio file not found: {audio_path}")
+    if not background_path.exists():
+        raise FileNotFoundError(f"Background video file not found: {background_path}")
+    if not isinstance(output_path, Path):
+        raise TypeError("output_path must be a Path object")
+    if resolution.count("x") != 1:
+        raise ValueError("Resolution must be in the format WIDTHxHEIGHT")
+    if fps <= 0:
+        raise ValueError("FPS must be a positive integer")
 
     cmd = [
         "ffmpeg",

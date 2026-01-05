@@ -37,10 +37,16 @@ def generate_speech(text, output_path):
     print(f"Speech generated successfully: {output_path}")
 
 
-def synthesize(text, outputFileName="voice.wav"):
-    # returns path relative to
-    project_root = Path(__file__).parent.parent
-    output_path = project_root / "assets" / "audio" / outputFileName
+def synthesize(text, output_path) -> Path:
+    if not isinstance(text, str):
+        raise TypeError("Input text must be a string.")
+    if text.strip() == "":
+        raise ValueError("Input text for TTS synthesis is empty.")
+
+    if not isinstance(output_path, Path):
+        output_path = Path(output_path)
+
+    # returns path relative to project root
     output_path.parent.mkdir(parents=True, exist_ok=True)
     generate_speech(text, output_path)
     return output_path
