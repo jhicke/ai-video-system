@@ -3,5 +3,5 @@
   "fps": 30,
   "background": "../assets/background.mp4",
   "audio": "../assets/voice.wav",
-  "output": "output/final.mp4"
+  "output": "../assets/output/final.mp4"
 }

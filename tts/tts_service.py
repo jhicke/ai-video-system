@@ -2,6 +2,7 @@ from TTS.api import TTS
 from pathlib import Path
 from pydub import AudioSegment
 
+
 def clean_audio(path):
     audio = AudioSegment.from_wav(path)
 
@@ -15,28 +16,31 @@ def clean_audio(path):
     # Save the cleaned audio
     normalized_audio.export(path, format="wav")
 
+
 def generate_speech(text, output_path):
     # load default TTS model
-    voiceModels= ["tts_models/en/ljspeech/tacotron2-DDC",
-                  "tts_models/en/vctk/vits",
-                  "tts_models/en/ljspeech/glow-tts",
-                  "tts_models/multilingual/multi-dataset/your_tts"]
-    
-    speaker ="p340"  # Example speaker for vctk model
+    voiceModels = [
+        "tts_models/en/ljspeech/tacotron2-DDC",
+        "tts_models/en/vctk/vits",
+        "tts_models/en/ljspeech/glow-tts",
+        "tts_models/multilingual/multi-dataset/your_tts",
+    ]
+
+    speaker = "p340"  # Example speaker for vctk model
 
     tts = TTS(voiceModels[1], gpu=True)  # You can choose any model from the list
 
     # generate speech
-    tts.tts_to_file(text=text, file_path=str(output_path),speaker=speaker)
+    tts.tts_to_file(text=text, file_path=str(output_path), speaker=speaker)
     clean_audio(output_path)
 
     print(f"Speech generated successfully: {output_path}")
 
 
 def synthesize(text, outputFileName="voice.wav"):
-        # returns path relative to 
+    # returns path relative to
     project_root = Path(__file__).parent.parent
-    output_path = project_root / "assets" / outputFileName
+    output_path = project_root / "assets" / "audio" / outputFileName
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    generate_speech(text, output_path)   
+    generate_speech(text, output_path)
     return output_path
