@@ -1,6 +1,9 @@
 from TTS.api import TTS
 from pathlib import Path
 from pydub import AudioSegment
+import logging
+
+logger = logging.getLogger("ai_video_system.tts")
 
 
 def clean_audio(path):
@@ -18,6 +21,8 @@ def clean_audio(path):
 
 
 def generate_speech(text, output_path):
+    logger.info(f"Starting TTS for {len(text)} characters")
+
     # load default TTS model
     voiceModels = [
         "tts_models/en/ljspeech/tacotron2-DDC",
@@ -26,7 +31,7 @@ def generate_speech(text, output_path):
         "tts_models/multilingual/multi-dataset/your_tts",
     ]
 
-    speaker = "p340"  # Example speaker for vctk model
+    speaker = "p295"  # Example speaker for vctk model
 
     tts = TTS(voiceModels[1])  # You can choose any model from the list
     tts.to("cuda")  # use GPU if available
@@ -35,7 +40,7 @@ def generate_speech(text, output_path):
     tts.tts_to_file(text=text, file_path=str(output_path), speaker=speaker)
     clean_audio(output_path)
 
-    print(f"Speech generated successfully: {output_path}")
+    logger.info(f"TTS wrote audio to {output_path}")
 
 
 def synthesize(text, output_path) -> Path:

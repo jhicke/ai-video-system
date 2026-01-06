@@ -4,9 +4,7 @@ from orchestrator.orchestrator import run_pipeline
 
 def test_run_pipeline(tmp_path: Path):
     project_root = Path(__file__).parent.parent
-    script = (
-        "This is a test script for the video synthesis pipeline. Hopefully it works!"
-    )
+    script = "I really love cats... They are playful, curious, and independent creatures that bring joy to my life. for example,  my cat loves to chase laser pointers and climb trees."
     output_dir = tmp_path
     video_filename = "test_video.mp4"
 

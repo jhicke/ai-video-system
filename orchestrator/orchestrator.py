@@ -1,6 +1,10 @@
 from pathlib import Path
 from tts.tts_service import synthesize
 from renderer.renderer import render_video
+from logging_config import setup_logging
+import time
+
+logger = setup_logging()
 
 
 def run_pipeline(
@@ -16,6 +20,7 @@ def run_pipeline(
     2. Render video from audio
     3. Return final video path
     """
+    logger.info("Pipeline started")
 
     # input validation
     if not isinstance(project_root, Path):
@@ -30,16 +35,26 @@ def run_pipeline(
         raise ValueError("video_filename must end with .mp4")
 
     # Step 1: Generate TTS audio
+    start = time.time()
+    logger.info("Running TTS...")
+
     tts_output_path = synthesize(
         script, project_root / "assets" / "voice" / "pipeline_voice.wav"
     )
+
     # error handling
     if not tts_output_path.exists():
         raise RuntimeError(f"TTS output file not found: {tts_output_path}")
     if not isinstance(tts_output_path, Path):
         raise TypeError("TTS microservice returned a non-Path output")
 
+    logger.info(f"TTS complete: {tts_output_path}")
+    logger.info(f"TTS completed in {time.time() - start:.2f}s")
+
     # Step 2: Render video
+    logger.info("Rendering video...")
+    start = time.time()
+
     background_path = (
         project_root / "assets" / "video" / "background.mp4"
     )  # will be changed later for video creation
@@ -61,5 +76,10 @@ def run_pipeline(
         raise RuntimeError(f"Rendered video file not found: {rendered_video_path}")
     if not isinstance(rendered_video_path, Path):
         raise TypeError("Renderer microservice returned a non-Path output")
+
+    logger.info(f"Render complete: {rendered_video_path}")
+    logger.info(f"Rendering completed in {time.time() - start:.2f}s")
+
+    logger.info(f"Pipeline finished. Final video: {rendered_video_path}")
 
     return rendered_video_path

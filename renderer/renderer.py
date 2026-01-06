@@ -1,6 +1,9 @@
 import json
 import subprocess
 from pathlib import Path
+import logging
+
+logger = logging.getLogger("ai_video_system.renderer")
 
 
 def load_template(path="template.json"):
