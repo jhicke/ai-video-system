@@ -11,7 +11,7 @@ logger = logging.getLogger("ai_video_system.script_generator")
 # model + endpoint config for Ollama
 
 OLLAMA_ENDPOINT = "http://localhost:11434/api/generate"
-MODEL_NAME = "gemma2:9b"  # can switch the llama3.1:8b if needed
+MODEL_NAME = "llama3.1:8b"  # can switch the llama3.1:8b if needed
 
 
 def _build_prompt(topic: str, style) -> str:
@@ -41,7 +41,7 @@ def _build_prompt(topic: str, style) -> str:
 
 
 def _call_ollama(
-    prompt: str, *, model: str = MODEL_NAME, temperature: float = 0.7
+    prompt: str, *, model: str = MODEL_NAME, temperature: float = 0.2
 ) -> str:
     """
     Call the local Ollama server and return the generated text.
@@ -65,7 +65,7 @@ def _call_ollama(
     if not text:
         raise RuntimeError("LLM returned empty response")
 
-    logger.info(f"Received {len(text)} characters from Gemma 2 9B")
+    logger.info(f"Received {len(text)} characters from Llama 3.1 8B")
     return text
 
 
@@ -73,7 +73,7 @@ def generate_script(
     topic: str,
     *,
     style: Literal["default", "educational", "funny", "dramatic"] = "default",
-    temperature: float = 0.7,
+    temperature: float = 0.2,
 ) -> str:
     if not topic or not topic.strip():
         raise ValueError("Topic must be a non-empty string")

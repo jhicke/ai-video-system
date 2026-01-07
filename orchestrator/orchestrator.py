@@ -1,4 +1,5 @@
 from pathlib import Path
+from script_generator.script_generator import generate_script
 from tts.tts_service import synthesize
 from renderer.renderer import render_video
 from logging_config import setup_logging
@@ -8,9 +9,11 @@ logger = setup_logging()
 
 
 def run_pipeline(
-    script: str,
+    topic: str,
     project_root: Path,
     *,
+    style: str = "default",
+    temperature: float = 0.2,
     output_dir: Path | None = None,
     video_filename: str = "final_video.mp4",
 ) -> Path:
@@ -25,8 +28,12 @@ def run_pipeline(
     # input validation
     if not isinstance(project_root, Path):
         raise TypeError("project_root must be a Path object")
-    if not isinstance(script, str):
-        raise TypeError("script must be a string")
+    if not isinstance(topic, str):
+        raise TypeError("topic must be a string")
+    if style is not None and not isinstance(style, str):
+        raise TypeError("style must be a string or None")
+    if temperature is not None and not isinstance(temperature, (float, int)):
+        raise TypeError("temperature must be a float or int")
     if output_dir is not None and not isinstance(output_dir, Path):
         raise TypeError("output_dir must be a Path object or None")
     if not isinstance(video_filename, str):
@@ -34,7 +41,14 @@ def run_pipeline(
     if not video_filename.lower().endswith(".mp4"):
         raise ValueError("video_filename must end with .mp4")
 
-    # Step 1: Generate TTS audio
+    # Step 1: Generate script
+    start = time.time()
+    script = generate_script(topic=topic, style=style, temperature=temperature)
+    logger.info(f"Script generated in {time.time() - start:.2f}s")
+    if not script.strip():
+        raise RuntimeError("Script generator returned empty output")
+
+    # Step 2: Generate TTS audio
     start = time.time()
     logger.info("Running TTS...")
 
@@ -51,7 +65,7 @@ def run_pipeline(
     logger.info(f"TTS complete: {tts_output_path}")
     logger.info(f"TTS completed in {time.time() - start:.2f}s")
 
-    # Step 2: Render video
+    # Step 3: Render video
     logger.info("Rendering video...")
     start = time.time()
 
