@@ -3,6 +3,7 @@ from script_generator.script_generator import generate_script
 from tts.tts_service import synthesize
 from renderer.renderer import render_video
 from logging_config import setup_logging
+from broll.broll_service import generate_broll
 import time
 
 logger = setup_logging()
@@ -19,9 +20,10 @@ def run_pipeline(
 ) -> Path:
     """
     Orchestrates the full pipeline:
-    1. Generate TTS audio from script
-    2. Render video from audio
-    3. Return final video path
+    1. Generate script
+    2. Generate TTS audio
+    3. Generate B-roll clips
+    4. Render final video
     """
     logger.info("Pipeline started")
 
@@ -56,7 +58,6 @@ def run_pipeline(
         script, project_root / "assets" / "voice" / "pipeline_voice.wav"
     )
 
-    # error handling
     if not tts_output_path.exists():
         raise RuntimeError(f"TTS output file not found: {tts_output_path}")
     if not isinstance(tts_output_path, Path):
@@ -65,15 +66,29 @@ def run_pipeline(
     logger.info(f"TTS complete: {tts_output_path}")
     logger.info(f"TTS completed in {time.time() - start:.2f}s")
 
-    # Step 3: Render video
-    logger.info("Rendering video...")
+    # Step 3: Generate B-roll
+    logger.info("Generating B-roll clips...")
     start = time.time()
 
-    background_path = (
-        project_root / "assets" / "video" / "background.mp4"
-    )  # will be changed later for video creation
-    if not background_path.exists():
-        raise FileNotFoundError(f"Background video not found: {background_path}")
+    # run_id = something unique per pipeline run
+    run_id = f"{int(time.time())}"
+
+    broll_result = generate_broll(
+        script=script,
+        style_preset=style,
+        max_clips=6,
+        clip_length_sec=4,
+        run_id=run_id,
+        batch_id=None,
+        llama_client=None,  # plug in your llama client if needed
+    )
+
+    logger.info(f"B-roll generation completed in {time.time() - start:.2f}s")
+    logger.info(f"Generated {len(broll_result.clips)} B-roll clips")
+
+    # Step 4: Render video
+    logger.info("Rendering video...")
+    start = time.time()
 
     if output_dir is None:
         output_dir = project_root / "assets" / "output"
@@ -82,10 +97,10 @@ def run_pipeline(
 
     rendered_video_path = render_video(
         audio_path=tts_output_path,
-        background_path=background_path,
+        broll_clips=broll_result.clips,
         output_path=output_path,
     )
-    # error handling
+
     if not rendered_video_path.exists():
         raise RuntimeError(f"Rendered video file not found: {rendered_video_path}")
     if not isinstance(rendered_video_path, Path):
