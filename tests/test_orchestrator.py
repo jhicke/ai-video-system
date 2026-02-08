@@ -1,6 +1,6 @@
 from pathlib import Path
 from orchestrator.orchestrator import run_pipeline
-from broll.broll_service import clip_generator
+from broll import clip_generator
 from broll.mock_svd import mock_generate_clip_local
 import pytest
 
